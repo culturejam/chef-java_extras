@@ -29,9 +29,15 @@ bash "extract-jce-policy" do
   cwd "/tmp"
   code <<-EOH
     unzip -u "#{source_dir}/jce-policy-#{jdk_version}.zip"
-    cp "#{java_home}/jre/lib/security/local_policy.jar" "#{java_home}/jre/lib/security/local_policy.jar.bak"
-    cp "#{java_home}/jre/lib/security/US_export_policy.jar" "#{java_home}/jre/lib/security/US_export_policy.jar.bak"
-    mv "jce/*.jar" "#{java_home}/jre/lib/security/"
+    if ! [ -e "#{java_home}/jre/lib/security/local_policy.jar.bak" ]
+    then
+      cp "#{java_home}/jre/lib/security/local_policy.jar" "#{java_home}/jre/lib/security/local_policy.jar.bak"
+    fi
+    if ! [ -e  "#{java_home}/jre/lib/security/US_export_policy.jar.bak" ]
+    then
+      cp "#{java_home}/jre/lib/security/US_export_policy.jar" "#{java_home}/jre/lib/security/US_export_policy.jar.bak"
+    fi
+    mv jce/*.jar "#{java_home}/jre/lib/security/"
   EOH
   action :nothing
 end
