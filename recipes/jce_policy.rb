@@ -39,7 +39,7 @@ bash "extract-jce-policy" do
 end
 
 remote_file "#{source_dir}/jce-policy-#{jdk_version}.zip" do
-  source   node['java']['jce_policy'][jdk_version]['url']
-  checksum node['java']['jce_policy'][jdk_version]['checksum']
+  source   node['java']['jce_policy']["#{jdk_version}"]['url']
+  checksum node['java']['jce_policy']["#{jdk_version}"]['checksum']
   notifies :run, "bash[extract-jce-policy]", :immediately
 end
