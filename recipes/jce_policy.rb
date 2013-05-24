@@ -21,6 +21,10 @@ jdk_version = node['java']['jdk_version']
 java_home   = node['java']['java_home']
 source_dir  = "/usr/local/src"
 
+package 'unzip' do
+  action :install
+end
+
 bash "extract-jce-policy" do
   cwd "/tmp"
   code <<-EOH
