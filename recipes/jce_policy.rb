@@ -21,8 +21,14 @@ jdk_version = node['java']['jdk_version']
 java_home   = node['java']['java_home']
 source_dir  = "/usr/local/src"
 
-if jdk_version.to_i >= 7
-  Chef::Log.error("Java JDK 7 is not yet supported by the JCE Policy recipe")
+package 'unzip' do
+  action :install
+end
+
+remote_file "#{source_dir}/jce-policy-#{jdk_version}.zip" do
+  source   node['java']['jce_policy']["#{jdk_version}"]['url']
+  checksum node['java']['jce_policy']["#{jdk_version}"]['checksum']
+  notifies :run, "bash[extract-jce-policy]", :immediately
 end
 
 bash "extract-jce-policy" do
@@ -39,11 +45,9 @@ bash "extract-jce-policy" do
     fi
     mv jce/*.jar "#{java_home}/jre/lib/security/"
   EOH
-  action :nothing
-end
-
-remote_file "#{source_dir}/jce-policy-#{jdk_version}.zip" do
-  source   node['java']['jce_policy'][jdk_version]['url']
-  checksum node['java']['jce_policy'][jdk_version]['checksum']
-  notifies :run, "bash[extract-jce-policy]", :immediately
+  not_if { 
+    File.exists?("#{java_home}/jre/lib/security/local_policy.jar.bak") &&
+    File.exists?("#{java_home}/jre/lib/security/US_export_policy.jar.bak") 
+  }
+  action :run
 end
